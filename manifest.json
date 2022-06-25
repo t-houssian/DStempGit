@@ -4361,36 +4361,6 @@
     "case.Rmd": {
       "checksum": "78a321bc378cffa224f1212422309d48"
     },
-    "kroger.html": {
-      "checksum": "3d6a59b4eddd8a832f4e9f1561d2d52c"
-    },
-    "kroger.md": {
-      "checksum": "625f96ad226911267fd6108ad520826a"
-    },
-    "kroger.Rmd": {
-      "checksum": "fadee381edc47d9858c49018d0a489a1"
-    },
-    "README.md": {
-      "checksum": "13eca3d8d15c6806edb38cab56f9cf6a"
-    },
-    "task1_files/figure-html/plot_data-1.png": {
-      "checksum": "c71818e0a7834bdfe5347b3fcdfc2506"
-    },
-    "task1_files/figure-html/plot_data-2.png": {
-      "checksum": "858d6810580b382f8f0655aa0597f0a4"
-    },
-    "task1_files/figure-html/plot_data-3.png": {
-      "checksum": "191425007ba59f438e8bbbdd2c0076c8"
-    },
-    "task1.html": {
-      "checksum": "beff8186885eaa32aea3e18a43b8fda7"
-    },
-    "task1.md": {
-      "checksum": "c02973295cc3a2503953d020bac2f9c1"
-    },
-    "task1.Rmd": {
-      "checksum": "49f461c5850cb57a5fe658d508c70965"
-    }
   },
   "users": null
 }
