@@ -1,0 +1,115 @@
+---
+title: "W10 Case Study: Interaction with Time"
+author: "Tyler Houssian"
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  html_document:  
+    keep_md: true
+    toc: true
+    toc_float: true
+    code_folding: hide
+    fig_height: 6
+    fig_width: 12
+    fig_align: 'center'
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r load_libraries, include=FALSE}
+# Use this R-Chunk to load all your libraries!
+#install.packages("tidyverse") # run this line once in console to get package
+library(tidyverse)
+library(dygraphs)
+library(tidyquant)
+library(shades)
+library(ggrepel)
+```
+
+```{r load_data}
+# Use this R-Chunk to import all your datasets!
+
+```
+
+## Background
+
+Your data science income has ballooned, and you need to find somewhere to invest $25,000 that you have saved over the last year. You have a savvy investment friend that is kind enough to tell you ten stocks she has been watching during the last year. You will need to visualize the last five years performance to help in the conversation with your friend.
+
+Your friend is going to give you her stock tickers at the beginning of your half-hour meeting with her (she is a busy friend). You will need to build an .Rmd file that will build a suite of visualizations rapidly for your conversation. You will need a series of stock performance graphics using library(dygraphs) and library(ggplot2). In real life, you might use one or the other, but this task is built to help you move from ts and xts to tidy objects for visualization.
+
+## Data Wrangling
+
+```{r tidy_data}
+# Use this R-Chunk to clean & wrangle your data!
+data = c("CXW", "F", "GM", "JCPUX", "KR", "WDC", "NKE","T", "WDAY", "WFC", "WMT")
+
+volume = data.frame()
+
+dy = c()
+
+for (d in data) {
+  print(d)
+  Ra <- c(d) %>%
+    tq_get(get  = "stock.prices",
+           from = "2017-06-24",
+           to   = "2022-06-24")  %>%
+  group_by(symbol) %>%
+    tq_transmute(select     = adjusted, 
+                 mutate_fun = periodReturn, 
+                 period     = "yearly", 
+                 col_rename = "Ra")
+  
+  vol <- c(d) %>%
+    tq_get(get  = "stock.prices",
+           from = "2017-06-24",
+           to   = "2022-06-24")  %>%
+  group_by(symbol) %>%
+    tq_transmute(select     = volume, 
+                 mutate_fun = periodReturn, 
+                 period     = "yearly", 
+                 col_rename = "vol")
+  
+  Ra$Ra[[1]] = (1 + Ra$Ra[[1]])* 25000
+  
+  for(i in 2:length(Ra$Ra)){
+    Ra$Ra[[i]] = (1 + Ra$Ra[[i]])* Ra$Ra[[(i-1)]]
+  }
+  
+  volume = volume <- rbind(volume, vol)
+  
+  s = xts(Ra$Ra, Ra$date, descr=d)
+  dy = cbind(dy, s)
+}
+
+volume = volume %>% mutate(label = if_else(date == max(date), paste(as.character(symbol), as.character(round(vol, 3)), sep=" : "), NA_character_))
+```
+
+## Data Visualization
+
+```{r plot_data}
+# Use this R-Chunk to plot & visualize your data!
+ggplot() +
+  geom_line(data = volume, aes(x=date, y=vol, color=symbol)) +
+  labs(x="Date", y="Volume", title="Volume: June 24th 2017 - June 24rd 2022") + 
+  geom_label_repel(data = volume, aes(x=date, y=vol, color=symbol, label = label),
+force = 20,
+direction="y",
+na.rm = TRUE)
+
+dygraph(dy, main = "Stock Performance: June 24th 2017 - June 24rd 2022") %>%
+  dySeries("s", label = "CXW") %>%
+  dySeries("s.1", label = "F") %>%
+  dySeries("s.2", label = "GM") %>%
+  dySeries("s.3", label = "JCPUX") %>%
+  dySeries("s.4", label = "KR") %>%
+  dySeries("s.5", label = "WDC") %>%
+  dySeries("s.6", label = "NKE") %>%
+  dySeries("s.7", label = "T") %>%
+  dySeries("s.8", label = "WDAY") %>%
+  dySeries("s.9", label = "WFC") %>%
+  dySeries("s.10", label = "WMT")
+```
+
+## Conclusions
+From the visualization the best performing stock was KR. We can see that it had a steady upward trend always and ended up on top. Nike did good as well. I chose to show performance as if you had invested 25,000 dollars 5 years ago. The data shows that you would have 58,483 dollars if you had invested in KR 5 years ago and pulled out today. The other metric that is measured in the normal ggplot graph is volume. Volume-wise WDAY seemed to do the best in the end but their were many spikes in all the stocks. NKE seemed to be a pretty smooth constant one if you look at the volume. I decided to use geom_lable_repel at the end of the line graph to make it easier to read the ending values. 
